@@ -133,8 +133,7 @@ class GeneralDataset(BaseDataset):
         """
 
         prepared_data: List[RawSample] = [{sample_field: text} for text in data]
-        dataset = cls(data=prepared_data, sample_field=sample_field, separator=separator)
-        return dataset
+        return cls(data=prepared_data, sample_field=sample_field, separator=separator)
 
     def get_sample(self, index: int) -> RawSample:
         """

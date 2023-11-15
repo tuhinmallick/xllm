@@ -11,7 +11,7 @@ def run():
     parsed_data = dict()
 
     for split in ["train", "test"]:
-        parsed_data[split] = list()
+        parsed_data[split] = []
 
         for sample in tqdm(rlhf_dataset[split], desc=f"Parsing {split}"):
             text_parts = sample["chosen"].split("\n\n")[1:]

@@ -214,7 +214,7 @@ class Quantizer:
         This method ensures that a suitable and correctly formatted dataset is available for quantizing the model.
         """
         dataset_id = None
-        samples: List[str] = list()
+        samples: List[str] = []
 
         if self.config.quantization_dataset_id is not None:
             dataset_id = self.config.quantization_dataset_id
@@ -232,7 +232,7 @@ class Quantizer:
             if raw_dataset is None:
                 raise ValueError("Quantization dataset can't be loaded")
 
-            samples = list()
+            samples = []
 
             for sample_index in tqdm(
                 range(len(raw_dataset)), desc="Loading quantization dataset", total=self.config.quantization_max_samples

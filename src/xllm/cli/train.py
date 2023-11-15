@@ -78,8 +78,9 @@ def cli_run_train(
     parser = HfArgumentParser(config_cls)
     config = parser.parse_args_into_dataclasses()[0]
     setup_cli(config=config, logger_path="./xllm_train.log")
-    experiment = train(config=config, train_dataset=train_dataset, eval_dataset=eval_dataset)
-    return experiment
+    return train(
+        config=config, train_dataset=train_dataset, eval_dataset=eval_dataset
+    )
 
 
 if __name__ == "__main__":

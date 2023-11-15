@@ -49,7 +49,7 @@ def llama_tokenizer() -> PreTrainedTokenizer:
 
 @pytest.fixture(scope="session")
 def llama_model_config(llama_tokenizer: PreTrainedTokenizer) -> LlamaConfig:
-    config = LlamaConfig(
+    return LlamaConfig(
         vocab_size=len(llama_tokenizer),
         hidden_size=8,
         intermediate_size=32,
@@ -57,18 +57,16 @@ def llama_model_config(llama_tokenizer: PreTrainedTokenizer) -> LlamaConfig:
         num_attention_heads=2,
         max_position_embeddings=32,
     )
-    return config
 
 
 @pytest.fixture(scope="session")
 def llama_model(llama_model_config: LlamaConfig) -> LlamaForCausalLM:
-    model = LlamaForCausalLM(config=llama_model_config)
-    return model
+    return LlamaForCausalLM(config=llama_model_config)
 
 
 @pytest.fixture(scope="session")
 def llama_lora_config() -> LoraConfig:
-    lora_config = LoraConfig(
+    return LoraConfig(
         r=2,
         target_modules=LORA_FOR_LLAMA_DEFAULT_TARGET_MODULES,
         bias="none",
@@ -76,7 +74,6 @@ def llama_lora_config() -> LoraConfig:
         lora_alpha=8,
         lora_dropout=0.1,
     )
-    return lora_config
 
 
 @pytest.fixture(scope="session")
@@ -94,7 +91,7 @@ def falcon_tokenizer() -> PreTrainedTokenizer:
 
 @pytest.fixture(scope="session")
 def falcon_model_config(falcon_tokenizer: PreTrainedTokenizer) -> FalconConfig:
-    config = FalconConfig(
+    return FalconConfig(
         vocab_size=len(falcon_tokenizer),
         hidden_size=8,
         intermediate_size=32,
@@ -102,25 +99,21 @@ def falcon_model_config(falcon_tokenizer: PreTrainedTokenizer) -> FalconConfig:
         num_attention_heads=2,
         max_position_embeddings=32,
     )
-    return config
 
 
 @pytest.fixture(scope="session")
 def falcon_model(falcon_model_config: FalconConfig) -> FalconForCausalLM:
-    model = FalconForCausalLM(config=falcon_model_config)
-    return model
+    return FalconForCausalLM(config=falcon_model_config)
 
 
 @pytest.fixture(scope="session")
 def soda_dataset() -> SodaDataset:
-    dataset = SodaDataset(data=SODA_DATASET)
-    return dataset
+    return SodaDataset(data=SODA_DATASET)
 
 
 @pytest.fixture(scope="session")
 def llama_lm_collator(llama_tokenizer: PreTrainedTokenizer) -> LMCollator:
-    collator = LMCollator(tokenizer=llama_tokenizer, max_length=32)
-    return collator
+    return LMCollator(tokenizer=llama_tokenizer, max_length=32)
 
 
 @pytest.fixture(scope="session")
@@ -131,7 +124,7 @@ def path_to_outputs(tmp_path_factory: TempPathFactory) -> str:
 
 @pytest.fixture(scope="session")
 def training_arguments(path_to_outputs: str) -> TrainingArguments:
-    arguments = TrainingArguments(
+    return TrainingArguments(
         output_dir=path_to_outputs,
         per_device_train_batch_size=2,
         gradient_accumulation_steps=2,
@@ -153,13 +146,11 @@ def training_arguments(path_to_outputs: str) -> TrainingArguments:
         log_level=enums.LogLevel.info,
         disable_tqdm=False,
     )
-    return arguments
 
 
 @pytest.fixture(scope="session")
 def config() -> Config:
-    hf_config = Config(deepspeed_stage=0)
-    return hf_config
+    return Config(deepspeed_stage=0)
 
 
 @pytest.fixture(scope="session")

@@ -68,8 +68,7 @@ def cli_run_quantize(
     parser = HfArgumentParser(config_cls)
     config = parser.parse_args_into_dataclasses()[0]
     setup_cli(config=config, logger_path="./xllm_gptq_quantize.log")
-    quantizer = quantize(config=config)
-    return quantizer
+    return quantize(config=config)
 
 
 if __name__ == "__main__":

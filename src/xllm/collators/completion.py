@@ -113,8 +113,8 @@ class CompletionCollator(BaseCollator):
         text_parts = [text + self.separator for text in sample]
         tokenized = self.tokenizer(text_parts)[enums.Transformers.input_ids]
 
-        token_indices = list()
-        mask = list()
+        token_indices = []
+        mask = []
 
         if self.prefix_end and self.prefix_end in text_parts[-1]:
             prefix = text_parts[-1][: text_parts[-1].index(self.prefix_end) + len(self.prefix_end)]
@@ -135,7 +135,7 @@ class CompletionCollator(BaseCollator):
 
         input_ids = token_indices[:-1]
 
-        targets = list()
+        targets = []
 
         for token_index, flag in zip(token_indices[1:], mask[1:]):
             if flag:
@@ -182,9 +182,9 @@ class CompletionCollator(BaseCollator):
         the `CompletionCollator` enables seamless integration with the model's expected input format.
         """
 
-        input_ids = list()
-        targets = list()
-        attention_masks = list()
+        input_ids = []
+        targets = []
+        attention_masks = []
 
         batch_max_length = 0
 
@@ -204,8 +204,9 @@ class CompletionCollator(BaseCollator):
                 attention_masks.append([1] * sample_length)
 
         for n_sample in range(len(input_ids)):
-            pad_sequence = [self.tokenizer.pad_token_id] * (batch_max_length - len(input_ids[n_sample]))
-            if pad_sequence:
+            if pad_sequence := [self.tokenizer.pad_token_id] * (
+                batch_max_length - len(input_ids[n_sample])
+            ):
                 additional_attention_mask = [0] * len(pad_sequence)
                 if self.tokenizer.padding_side == "left":
                     input_ids[n_sample] = pad_sequence + input_ids[n_sample]
@@ -216,10 +217,8 @@ class CompletionCollator(BaseCollator):
                     targets[n_sample] += pad_sequence
                     attention_masks[n_sample] += additional_attention_mask
 
-        batch = {
+        return {
             enums.Transformers.input_ids: torch.tensor(input_ids),
             enums.Transformers.attention_mask: torch.tensor(attention_masks),
             enums.Transformers.labels: torch.tensor(targets),
         }
-
-        return batch

@@ -88,7 +88,7 @@ class LMCollator(BaseCollator):
         training routines that utilize PyTorch's DataLoader and other training utilities.
         """
 
-        texts = list()
+        texts = []
 
         for sample in raw_batch:
             item = sample[enums.General.text_parts]
@@ -105,10 +105,8 @@ class LMCollator(BaseCollator):
             max_length=self.max_length,
         )
 
-        batch = {
+        return {
             enums.Transformers.input_ids: tokenized.input_ids[:, :-1],
             enums.Transformers.attention_mask: tokenized.attention_mask[:, :-1],
             enums.Transformers.labels: tokenized.input_ids[:, 1:],
         }
-
-        return batch

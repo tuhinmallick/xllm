@@ -18,7 +18,7 @@ class AntropicDataset(BaseDataset):
         parsed_data: Dict[str, List[RawSample]] = dict()
 
         for split in ["train", "test"]:
-            parsed_data[split] = list()
+            parsed_data[split] = []
 
             for sample in tqdm(rlhf_dataset[split], desc=f"Parsing {split}"):
                 text_parts = sample["chosen"].split("\n\n")[1:]
@@ -31,5 +31,4 @@ class AntropicDataset(BaseDataset):
         return train, evaluation
 
     def get_sample(self, index: int) -> RawSample:
-        sample = {enums.General.text_parts: self.data[index]}
-        return sample
+        return {enums.General.text_parts: self.data[index]}
