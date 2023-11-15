@@ -789,8 +789,10 @@ class Config:
         if self.raw_lora_target_modules == "all":
             return None
         elif self.raw_lora_target_modules is not None:
-            modules_names = [module_name.strip() for module_name in self.raw_lora_target_modules.split(",")]
-            return modules_names
+            return [
+                module_name.strip()
+                for module_name in self.raw_lora_target_modules.split(",")
+            ]
         else:
             raise ValueError("raw_lora_target_modules doesn't set")
 
@@ -878,12 +880,11 @@ class Config:
                 )
 
         if self.deepspeed_config_path is not None:
-            if os.path.isfile(self.deepspeed_config_path):
-                with open(self.deepspeed_config_path) as file_object:
-                    deepspeed_config = json.load(file_object)
-            else:
+            if not os.path.isfile(self.deepspeed_config_path):
                 raise ValueError(f"deepspeed_config_path set to {self.deepspeed_config_path}, but not found")
 
+            with open(self.deepspeed_config_path) as file_object:
+                deepspeed_config = json.load(file_object)
         return deepspeed_config
 
     @property
@@ -919,7 +920,7 @@ class Config:
             - The FSDP settings in the configuration should match the target training environment and system
               capabilities.
         """
-        fsdp_options = list()
+        fsdp_options = []
 
         if self.fsdp_strategy is not None and self.fsdp_strategy != "":
             fsdp_options.append(self.fsdp_strategy)

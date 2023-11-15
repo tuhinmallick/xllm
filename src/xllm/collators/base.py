@@ -86,8 +86,7 @@ class BaseCollator(ABC):
         self.separator = separator
 
     def __call__(self, raw_batch: List[RawSample]) -> Batch:
-        batch = self.parse_batch(raw_batch=raw_batch)
-        return batch
+        return self.parse_batch(raw_batch=raw_batch)
 
     @abstractmethod
     def parse_batch(self, raw_batch: List[RawSample]) -> Batch:

@@ -43,7 +43,7 @@ class SodaDataset(BaseDataset):
         known_indices = set()
 
         for split in ["train", "test"]:
-            parsed_data[split] = list()
+            parsed_data[split] = []
 
             for sample in tqdm(soda_dataset[split], desc=f"Parsing SODA {split}"):
                 index = sample.get("original_index")
@@ -72,15 +72,10 @@ class SodaDataset(BaseDataset):
 
         dialog = sample[self.DIALOG_KEY]
 
-        phrases = list()
-
         if not isinstance(dialog, list):
             raise ValueError(f"{self.DIALOG_KEY} of sample is not a list: {type(dialog)}")
 
-        for phrase in dialog:
-            if isinstance(phrase, str):
-                phrases.append(phrase)
-
+        phrases = [phrase for phrase in dialog if isinstance(phrase, str)]
         if self.HEADER_KEY in sample:
             header = sample[self.HEADER_KEY]
 
@@ -89,6 +84,8 @@ class SodaDataset(BaseDataset):
             if not is_drop_header and isinstance(header, str):
                 phrases.insert(0, header)
 
-        sample = {enums.General.text_parts: [phrase.replace("\n", " ").replace("\r", " ") for phrase in phrases]}
-
-        return sample
+        return {
+            enums.General.text_parts: [
+                phrase.replace("\n", " ").replace("\r", " ") for phrase in phrases
+            ]
+        }

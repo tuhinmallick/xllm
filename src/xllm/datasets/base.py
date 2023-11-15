@@ -132,7 +132,7 @@ class BaseDataset(Dataset[RawSample], ABC):
                 logger.info("Add eval data to train")
 
         if eval_data is not None and config.eval_local_path_to_data is not None:
-            if len(eval_data) > config.max_eval_samples and config.max_eval_samples > 0:
+            if len(eval_data) > config.max_eval_samples > 0:
                 train_data += eval_data[config.max_eval_samples :]
                 eval_data = eval_data[: config.max_eval_samples]
                 logger.info(f"Eval data size truncated to {config.max_eval_samples}")
@@ -190,7 +190,7 @@ class BaseDataset(Dataset[RawSample], ABC):
         This method should be overridden by subclasses if they require special handling or additional steps
         when loading data.
         """
-        data = list()
+        data = []
 
         if not os.path.isfile(path_to_data):
             raise FileNotFoundError(f"File {path_to_data} not found. Probably you should run .prepare before")
@@ -200,16 +200,13 @@ class BaseDataset(Dataset[RawSample], ABC):
                 sample = json.loads(line)
                 data.append(sample)
 
-        dataset = cls(data=data)
-
-        return dataset
+        return cls(data=data)
 
     def __len__(self) -> int:
         return len(self.data)
 
     def __getitem__(self, index: int) -> RawSample:
-        sample = self.get_sample(index=index)
-        return sample
+        return self.get_sample(index=index)
 
     @classmethod
     @abstractmethod

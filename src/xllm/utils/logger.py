@@ -65,10 +65,7 @@ class DistributedLogger:
             training or in a non-distributed context; `False` otherwise.
         """
         if is_distributed_training():
-            if distributed.get_rank() == local_rank or self.local_rank:
-                return True
-            else:
-                return False
+            return bool(distributed.get_rank() == local_rank or self.local_rank)
         else:
             return True
 

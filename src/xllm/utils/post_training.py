@@ -96,23 +96,22 @@ def fuse_lora(config: Config) -> Tuple[PreTrainedTokenizer, PreTrainedModel]:
 
     if config.push_to_hub or config.hub_model_id is not None:
         logger.info(f"Pushing model to the hub {config.hub_model_id}")
-        if config.hub_model_id is not None:
-            tokenizer.push_to_hub(
-                repo_id=config.hub_model_id,
-                private=config.hub_private_repo,
-                safe_serialization=config.save_safetensors,
-            )
-            model.push_to_hub(
-                repo_id=config.hub_model_id,
-                private=config.hub_private_repo,
-                safe_serialization=config.save_safetensors,
-                max_shard_size=config.max_shard_size,
-            )
-            if config.push_to_hub_bos_add_bos_token:
-                push_to_hub_bos_add_bos_token(repo_id=config.hub_model_id)
-        else:
+        if config.hub_model_id is None:
             raise ValueError("Fused model push to hub failed, because config.hub_model_id if None")
 
+        tokenizer.push_to_hub(
+            repo_id=config.hub_model_id,
+            private=config.hub_private_repo,
+            safe_serialization=config.save_safetensors,
+        )
+        model.push_to_hub(
+            repo_id=config.hub_model_id,
+            private=config.hub_private_repo,
+            safe_serialization=config.save_safetensors,
+            max_shard_size=config.max_shard_size,
+        )
+        if config.push_to_hub_bos_add_bos_token:
+            push_to_hub_bos_add_bos_token(repo_id=config.hub_model_id)
     return tokenizer, model
 
 

@@ -89,7 +89,7 @@ def build_training_arguments(config: Config) -> TrainingArguments:
         fp16 = False
         bf16 = False
 
-    training_arguments = TrainingArguments(
+    return TrainingArguments(
         output_dir=config.output_dir,
         per_device_train_batch_size=config.per_device_train_batch_size,
         gradient_accumulation_steps=config.gradient_accumulation_steps,
@@ -109,7 +109,9 @@ def build_training_arguments(config: Config) -> TrainingArguments:
         save_total_limit=config.save_total_limit,
         hub_model_id=config.hub_model_id,
         hub_strategy="checkpoint",
-        hub_token=os.environ.get(enums.EnvironmentVariables.huggingface_hub_token, None),
+        hub_token=os.environ.get(
+            enums.EnvironmentVariables.huggingface_hub_token, None
+        ),
         push_to_hub=config.push_to_hub,
         hub_private_repo=config.hub_private_repo,
         save_safetensors=config.save_safetensors,
@@ -122,8 +124,10 @@ def build_training_arguments(config: Config) -> TrainingArguments:
         optim=config.optim,  # will be overwriten by deepspeed config if exist
         do_eval=config.do_eval,
         evaluation_strategy="steps" if config.do_eval else IntervalStrategy.NO,
-        per_device_eval_batch_size=config.per_device_eval_batch_size or config.per_device_train_batch_size,
-        eval_accumulation_steps=config.eval_accumulation_steps or config.gradient_accumulation_steps,
+        per_device_eval_batch_size=config.per_device_eval_batch_size
+        or config.per_device_train_batch_size,
+        eval_accumulation_steps=config.eval_accumulation_steps
+        or config.gradient_accumulation_steps,
         eval_delay=config.eval_delay,
         eval_steps=config.eval_steps,
         seed=config.seed,
@@ -131,7 +135,6 @@ def build_training_arguments(config: Config) -> TrainingArguments:
         metric_for_best_model="eval_loss" if config.do_eval else "loss",
         neftune_noise_alpha=config.neftune_noise_alpha,
     )
-    return training_arguments
 
 
 def build_dataset(config: Config, is_train: bool = True, **kwargs: Any) -> Optional[BaseDataset]:
@@ -307,9 +310,9 @@ def build_collator(config: Config, tokenizer: PreTrainedTokenizer, **kwargs: Any
     if not issubclass(collator_cls, BaseCollator):
         raise ValueError(f"Unknown type of collator: {collator_cls.__name__}")
 
-    collator = collator_cls(tokenizer=tokenizer, max_length=config.max_length, **kwargs)
-
-    return collator
+    return collator_cls(
+        tokenizer=tokenizer, max_length=config.max_length, **kwargs
+    )
 
 
 def build_quantization_config(
@@ -353,13 +356,13 @@ def build_quantization_config(
           of the quantization process and impact the model size and computational speed after quantization.
     """
     if config.from_gptq:
-        quantization_config = GPTQConfig(
+        return GPTQConfig(
             bits=config.gptq_bits,
             group_size=config.gptq_group_size,
             disable_exllama=config.gptq_disable_exllama,
         )
     elif config.load_in_8bit or config.load_in_4bit:
-        quantization_config = BitsAndBytesConfig(
+        return BitsAndBytesConfig(
             load_in_8bit=config.load_in_8bit,
             load_in_4bit=config.load_in_4bit,
             llm_int8_threshold=config.llm_int8_threshold,
@@ -369,9 +372,7 @@ def build_quantization_config(
             bnb_4bit_quant_type=config.bnb_4bit_quant_type,
         )
     else:
-        quantization_config = None
-
-    return quantization_config
+        return None
 
 
 def build_model(
@@ -430,11 +431,7 @@ def build_model(
         quantization_config = None
         dist_logger("bnb quantization is expected later")
 
-    if config.use_gradient_checkpointing:
-        use_cache = False
-    else:
-        use_cache = True
-
+    use_cache = not config.use_gradient_checkpointing
     kwargs: Dict[str, Any] = dict()
 
     if config.use_flash_attention_2:

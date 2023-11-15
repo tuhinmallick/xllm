@@ -248,7 +248,6 @@ class Experiment:
             if self.eval_dataset is not None:
                 if self.training_arguments is not None:
                     self.training_arguments.do_eval = True
-            if self.eval_dataset is not None:
                 dist_logger(
                     f"Eval dataset {self.eval_dataset.__class__.__name__} was built. Size: {len(self.eval_dataset)}"
                 )
@@ -327,14 +326,13 @@ class Experiment:
 
     @property
     def trainer_components(self) -> Dict[str, Any]:
-        components = {
+        return {
             "training_arguments": self.training_arguments,
             "train_dataset": self.train_dataset,
             "eval_dataset": self.eval_dataset,
             "collator": self.collator,
             "model": self.model,
         }
-        return components
 
     # checks
     def before_checks(self) -> None:
@@ -356,8 +354,7 @@ class Experiment:
         return None
 
     def build_training_arguments(self) -> TrainingArguments:
-        training_arguments = build_training_arguments(config=self.config)
-        return training_arguments
+        return build_training_arguments(config=self.config)
 
     def after_training_arguments_build(self) -> None:
         return None
@@ -388,8 +385,9 @@ class Experiment:
 
     def build_eval_dataset(self) -> Optional[BaseDataset]:
         eval_dataset_additional_kwargs = self.build_eval_dataset_additional_kwargs()
-        dataset = build_dataset(config=self.config, is_train=False, **eval_dataset_additional_kwargs)
-        return dataset
+        return build_dataset(
+            config=self.config, is_train=False, **eval_dataset_additional_kwargs
+        )
 
     def after_eval_dataset_build(self) -> None:
         return None
@@ -399,8 +397,9 @@ class Experiment:
         return None
 
     def build_tokenizer(self) -> PreTrainedTokenizer:
-        tokenizer = build_tokenizer(config=self.config, use_fast=self.config.tokenizer_use_fast)
-        return tokenizer
+        return build_tokenizer(
+            config=self.config, use_fast=self.config.tokenizer_use_fast
+        )
 
     def after_tokenizer_build(self) -> None:
         return None
@@ -414,8 +413,11 @@ class Experiment:
 
     def build_collator(self) -> BaseCollator:
         collator_additional_kwargs = self.build_collator_additional_kwargs()
-        collator = build_collator(config=self.config, tokenizer=self.tokenizer, **collator_additional_kwargs)
-        return collator
+        return build_collator(
+            config=self.config,
+            tokenizer=self.tokenizer,
+            **collator_additional_kwargs
+        )
 
     def after_collator_build(self) -> None:
         return None
@@ -425,8 +427,7 @@ class Experiment:
         return None
 
     def build_quantization_config(self) -> Union[BitsAndBytesConfig, GPTQConfig, None]:
-        quantization_config = build_quantization_config(config=self.config)
-        return quantization_config
+        return build_quantization_config(config=self.config)
 
     def after_quantization_config_build(self) -> None:
         return None
@@ -439,8 +440,7 @@ class Experiment:
         quantization_config = (
             None if self.is_bnb_quantization and self.config.bnb_quantize_after_model_init else self.quantization_config
         )
-        model = build_model(config=self.config, quantization_config=quantization_config)
-        return model
+        return build_model(config=self.config, quantization_config=quantization_config)
 
     def after_model_build(self) -> None:
         return None
@@ -504,7 +504,7 @@ class Experiment:
         if self.collator is None:
             raise ValueError("collator is None")
 
-        trainer = build_trainer(
+        return build_trainer(
             config=self.config,
             pad_token_id=self.tokenizer.pad_token_id,
             training_arguments=self.training_arguments,
@@ -514,8 +514,6 @@ class Experiment:
             eval_dataset=self.eval_dataset,
             **additional_trainer_kwargs,
         )
-
-        return trainer
 
     def after_trainer_build(self) -> None:
         return None
